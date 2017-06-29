@@ -23,6 +23,7 @@ app.set ('/views', path.join (__dirname, 'views'));
 app.set ('view engine', 'pug');
 app.use ("/bootstrap", express.static(path.join(__dirname, "/static/bootstrap")));
 app.use ("/stylesheets", express.static(path.join(__dirname, "/static/stylesheets")));
+app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
 app.get ('/', (req, rsp) => {
   rsp.render ('home', {});
