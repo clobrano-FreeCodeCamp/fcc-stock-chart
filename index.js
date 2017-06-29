@@ -13,7 +13,10 @@ https.get(url, (res) => {
   res.on ('end', (unknown) => {
     var json = JSON.parse(chunk);
     console.log (json['Meta Data']['2. Symbol']);
-
+    var series = json['Time Series (1min)'];
+    for (var k in series) {
+      console.log (series[k]['1. open']);
+    }
   });
 
 }).on('error', (e) => {
