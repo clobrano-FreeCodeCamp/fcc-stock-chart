@@ -18,10 +18,12 @@
   "homepage": "https://github.com/clobrano/fcc-stock-chart#readme",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.3",
     "express-session": "^1.15.3",
     "get-json": "0.0.3",
+    "morgan": "^1.8.2",
     "pug": "^2.0.0-rc.2"
   }
 }
