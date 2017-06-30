@@ -28,9 +28,17 @@ app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
 
 const KEY = process.env.ALPHA_KEY
-const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=1min&apikey=' + KEY;
+var STOCK = null;
 
 app.get ('/', (req, rsp) => {
+  if (!STOCK) {
+    return rsp.render ('home', {messages: req.flash ('error')});
+  }
+
+  var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + STOCK + '&interval=1min&apikey=' + KEY;
+
+  console.log ("getting: " + url);
+
   https.get(url, (res) => {
     var chunk = '';
 
@@ -40,7 +48,13 @@ app.get ('/', (req, rsp) => {
 
     res.on ('end', (unknown) => {
       const json = JSON.parse(chunk);
-      console.log(json);
+
+      const err = json['Error Message'];
+      if (err) {
+        req.flash ('error', 'Error: could not retrieve data for ' + STOCK);
+        return rsp.render ('home', {messages: req.flash ('error')});
+      }
+
       const series = json['Time Series (1min)'];
       var label = '';
       var xvalues = [];
@@ -55,14 +69,22 @@ app.get ('/', (req, rsp) => {
       }
 
       rsp.render ('home', {
-        'label': label,
-        'xvalues': xvalues,
-        'yvalues': yvalues
+        datasets: true,
+        label: label,
+        xvalues: xvalues,
+        yvalues: yvalues,
+        messages: req.flash ('error')
       });
     });
   }).on('error', (e) => {
     console.error(e);
   });  
+});
+
+
+app.post ('/search', (req, rsp) => {
+  STOCK = req.body.stock;
+  rsp.redirect ('/');
 });
 
 port = process.env.PORT || 3000
