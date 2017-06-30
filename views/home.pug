@@ -2,7 +2,33 @@ extends layout
 block content
   h1="Here I am"
 
-  canvas(id="canvas")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
-    script(src="/js/foochart.js")
+  .container
+    canvas(id="canvas", width="250", height="100")
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
+      script.
+        console.log ("I'm here");
+        var ctx = document.getElementById("canvas").getContext('2d');
+        var myChart = new Chart (ctx, {
+          type: 'line',
+          data: {
+            labels: [#{xvalues}],
+            datasets: [{
+              data: [#{yvalues}],
+              label: '#{label}',
+              borderColor: "#3e95cd",
+              fill: false
+            }]
+          },
+          options: {
+            scales: {
+              xAxes: [{
+                ticks: {
+                  min:0,
+                  stepSize: 5,
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
 
