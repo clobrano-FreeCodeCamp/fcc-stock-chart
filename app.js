@@ -100,7 +100,14 @@ app.get ('/', (req, rsp) => {
 
 
 app.post ('/search', (req, rsp) => {
-  stocks.push (req.body.stock);
+  var new_stock = null;
+
+  if (req.body.stock)
+    new_stock = req.body.stock.toUpperCase ();
+
+  if (stocks.indexOf (new_stock) == -1)
+    stocks.push (req.body.stock);
+
   rsp.redirect ('/');
 });
 
