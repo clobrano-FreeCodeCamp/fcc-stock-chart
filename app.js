@@ -38,7 +38,7 @@ app.get ('/', (req, rsp) => {
   
   var callbacks = 0;
   var datasets = [];
-  const colors = ["#3e95cd", "#7e95cd"];
+  const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange'];
 
   for (i in stocks) {
     var stock = stocks [i];
@@ -61,8 +61,11 @@ app.get ('/', (req, rsp) => {
 
         if (err) {
           req.flash ('error', 'Error: could not retrieve data for ' + stock);
+          callback--;
           return;
         }
+
+        var stock_name = json['Meta Data']['2. Symbol'].toUpperCase();
 
         for (var k in series) {
           xvalues.push ("'" + k + "'");
@@ -71,7 +74,7 @@ app.get ('/', (req, rsp) => {
 
         var dataset = {
           data: yvalues,
-          label: json['Meta Data']['2. Symbol'],
+          label: stock_name,
           borderColor: colors.pop(),
           fill: false
         };
