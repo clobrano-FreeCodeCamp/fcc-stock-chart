@@ -29,12 +29,14 @@ app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
 const KEY = process.env.ALPHA_KEY
 const service_host = 'https://www.alphavantage.co/'
-const time_intervals = ['1m', '5m', '15m', '30m' ]
+const time_sampling = ['1m', '5m', '15m', '30m' ]
 const time_series_data = ['TIME_SERIES_DAILY', 'TIME_SERIES_WEEKLY', 'TIME_SERIES_MONTHLY' ]
 const time_series_name = ['Time Series (Daily)', 'Weekly Time Series', 'Monthly Time Series' ]
-const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange' ];
+var sel_sampling = 0;
+var sel_series = 0;
 
-var stocks = ['GOOGL', 'AAPL'];
+const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange' ];
+var stocks = ['GOOGL'];
 
 app.get ('/', (req, rsp) => {
   if (stocks.length == 0) {
@@ -44,12 +46,10 @@ app.get ('/', (req, rsp) => {
   var callbacks = 0;
   var datasets = [];
   var title = null;
-  var sel_sample = req.body.sample || 0;
-  var sel_interval = req.body.interval || 0;
 
   for (i in stocks) {
     var stock = stocks [i];
-    var url = service_host + 'query?function=' + time_series_data [sel_interval] + '&symbol=' + stock + '&interval=' + time_intervals [sel_interval] + ' &apikey=' + KEY;
+    var url = service_host + 'query?function=' + time_series_data [sel_series] + '&symbol=' + stock + '&interval=' + time_sampling [sel_sampling] + ' &apikey=' + KEY;
     console.log ('Getting url: ' + url);
 
     callbacks++;
@@ -74,7 +74,7 @@ app.get ('/', (req, rsp) => {
         } else{
           title = title || json['Meta Data']['1. Information']
           const stock_name = json['Meta Data']['2. Symbol'].toUpperCase();
-          const series = json[ time_series_name [sel_interval] ];
+          const series = json[ time_series_name [sel_series] ];
 
           for (var k in series) {
             xvalues.push ("'" + k + "'");
@@ -131,6 +131,23 @@ app.get ('/remove/:stock', (req, rsp) => {
 
   rsp.redirect ('/');
 });
+
+app.get ('/select/:type/:id', (req, rsp) => {
+  var type = req.params.type;
+  var id = req.params.id;
+
+  if (type === 'series') {
+    if (id < time_series_data.length)
+      sel_series = id;
+  }
+
+  if (type === 'sampling') {
+    if (id < time_sampling.length)
+      sel_sampling = id;
+  }
+
+  rsp.redirect ('/');
+})
 
 port = process.env.PORT || 3000
 app.listen(port);

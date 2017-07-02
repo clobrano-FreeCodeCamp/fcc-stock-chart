@@ -1,11 +1,30 @@
 extends layout
 block content
-  .container
+  div.container
     if messages && messages.length
       .alert.alert-danger
         span= messages [0]
 
+
     if datasets && datasets.length
+      div.btn-group
+        button.btn.btn-default.dropdown-toggle(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")= "Data Type "
+          span.caret
+        ul.dropdown-menu
+          li
+            a(role="button", href="/select/series/0") daily
+            a(role="button", href="/select/series/1") weekly
+            a(role="button", href="/select/series/2") monthly
+      div.btn-group
+        button.btn.btn-default.dropdown-toggle(type="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")= "Intervals "
+          span.caret
+        ul.dropdown-menu
+          li
+            a(role="button", href="/select/sampling/0") 1m
+            a(role="button", href="/select/sampling/1") 5m
+            a(role="button", href="/select/sampling/2") 15m
+            a(role="button", href="/select/sampling/4") 30m
+
       canvas(id="canvas", width="250", height="100")
         script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
         script.
