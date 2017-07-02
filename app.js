@@ -28,27 +28,33 @@ app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
 
 const KEY = process.env.ALPHA_KEY
-var stocks = ['GOOGL', 'AAPL'];
-app.get ('/', (req, rsp) => {
+const service_host = 'https://www.alphavantage.co/'
+const time_intervals = ['1m', '5m', '15m', '30m' ]
+const time_series_data = ['TIME_SERIES_DAILY', 'TIME_SERIES_WEEKLY', 'TIME_SERIES_MONTHLY' ]
+const time_series_name = ['Time Series (Daily)', 'Weekly Time Series', 'Monthly Time Series' ]
+const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange' ];
 
+var stocks = ['GOOGL', 'AAPL'];
+
+app.get ('/', (req, rsp) => {
   if (stocks.length == 0) {
     return rsp.render ('home', {messages: req.flash ('error')});
   }
-
   
   var callbacks = 0;
   var datasets = [];
   var title = null;
-  const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange'];
+  var sel_sample = req.body.sample || 0;
+  var sel_interval = req.body.interval || 0;
 
   for (i in stocks) {
     var stock = stocks [i];
-    var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + stock + '&interval=1min&apikey=' + KEY;
-    var url_daily = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stock + '&interval=1min&apikey=' + KEY;
+    var url = service_host + 'query?function=' + time_series_data [sel_interval] + '&symbol=' + stock + '&interval=' + time_intervals [sel_interval] + ' &apikey=' + KEY;
+    console.log ('Getting url: ' + url);
 
-    console.log ('url: ' + url);
     callbacks++;
-    https.get(url_daily, (res) => {
+
+    https.get(url, (res) => {
       var chunk = '';
 
       res.on('data', (data) => {
@@ -68,7 +74,7 @@ app.get ('/', (req, rsp) => {
         } else{
           title = title || json['Meta Data']['1. Information']
           const stock_name = json['Meta Data']['2. Symbol'].toUpperCase();
-          const series = json['Time Series (Daily)'];
+          const series = json[ time_series_name [sel_interval] ];
 
           for (var k in series) {
             xvalues.push ("'" + k + "'");
