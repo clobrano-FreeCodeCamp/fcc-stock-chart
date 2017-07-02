@@ -28,7 +28,7 @@ app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
 
 const KEY = process.env.ALPHA_KEY
-var stocks = ['GOOGL'];
+var stocks = ['GOOGL', 'AAPL'];
 app.get ('/', (req, rsp) => {
 
   if (stocks.length == 0) {
@@ -38,14 +38,17 @@ app.get ('/', (req, rsp) => {
   
   var callbacks = 0;
   var datasets = [];
+  var title = null;
   const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange'];
 
   for (i in stocks) {
     var stock = stocks [i];
     var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + stock + '&interval=1min&apikey=' + KEY;
+    var url_daily = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stock + '&interval=1min&apikey=' + KEY;
 
+    console.log ('url: ' + url);
     callbacks++;
-    https.get(url, (res) => {
+    https.get(url_daily, (res) => {
       var chunk = '';
 
       res.on('data', (data) => {
@@ -53,37 +56,42 @@ app.get ('/', (req, rsp) => {
       });
 
       res.on ('end', (unknown) => {
+        console.log ('End of data for stock');
         const json = JSON.parse(chunk);
         const err = json['Error Message'];
-        const series = json['Time Series (1min)'];
         var xvalues = [];
         var yvalues = [];
 
         if (err) {
-          req.flash ('error', 'Error: could not retrieve data for ' + stock);
-          callback--;
-          return;
+          console.error (err);
+          req.flash ('error', 'Error: could not retrieve data');
+        } else{
+          title = title || json['Meta Data']['1. Information']
+          const stock_name = json['Meta Data']['2. Symbol'].toUpperCase();
+          const series = json['Time Series (Daily)'];
+
+          for (var k in series) {
+            xvalues.push ("'" + k + "'");
+            yvalues.push (series[k]['4. close']);
+          }
+
+          var dataset = {
+            data: yvalues,
+            label: stock_name,
+            borderColor: colors.pop(),
+            fill: false
+          };
+
+          datasets.push (dataset);
         }
 
-        var stock_name = json['Meta Data']['2. Symbol'].toUpperCase();
-
-        for (var k in series) {
-          xvalues.push ("'" + k + "'");
-          yvalues.push (series[k]['4. close']);
-        }
-
-        var dataset = {
-          data: yvalues,
-          label: stock_name,
-          borderColor: colors.pop(),
-          fill: false
-        };
-
-        datasets.push (dataset);
         callbacks--;
 
-        if (callbacks == 0) {
+        if (callbacks <= 0) {
+          console.log ('Rendering the page');
           rsp.render ('home', {
+            stocks: stocks,
+            title: title,
             xvalues: xvalues,
             datasets: JSON.stringify (datasets),
             messages: req.flash ('error')
@@ -91,11 +99,7 @@ app.get ('/', (req, rsp) => {
         }
       });
     });
-
-    console.log ("exit from loop");
   }
-
-  console.log ("exit from route");
 });
 
 
@@ -107,6 +111,17 @@ app.post ('/search', (req, rsp) => {
 
   if (stocks.indexOf (new_stock) == -1)
     stocks.push (req.body.stock);
+
+  rsp.redirect ('/');
+});
+
+app.get ('/remove/:stock', (req, rsp) => {
+  var stock = req.params.stock.toUpperCase ();
+  var id = stocks.indexOf (stock);
+
+  if (id != -1) {
+    stocks.splice (id, 1);
+  }
 
   rsp.redirect ('/');
 });

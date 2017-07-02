@@ -2,13 +2,11 @@ extends layout
 block content
   .container
     if messages && messages.length
-      each msg in messages
-        .alert.alert-danger
-          span= msg
+      .alert.alert-danger
+        span= messages [0]
 
     if datasets && datasets.length
       canvas(id="canvas", width="250", height="100")
-      div(id="stock_chart", style="width: 900px; height: 500px")
         script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
         script.
           var ctx = document.getElementById("canvas").getContext('2d');
@@ -22,7 +20,7 @@ block content
               responsive: true,
               title:{
                 display:true,
-                text:'Chart.js Line Chart - Logarithmic'
+                text: '#{title}'
               },
               tooltips: {
                 mode: 'index',
@@ -39,4 +37,10 @@ block content
               }
             }
           });
-
+      br
+      .container
+        .row
+            each stock in stocks
+              .col-md-2
+                a.btn.btn-lg.btn-default(role="button", href="/remove/" + stock)
+                  span.glyphicon.glyphicon-remove= stock
