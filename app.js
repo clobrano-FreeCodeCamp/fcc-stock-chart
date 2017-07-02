@@ -35,7 +35,7 @@ const time_series_name = ['Time Series (Daily)', 'Weekly Time Series', 'Monthly 
 var sel_sampling = 0;
 var sel_series = 0;
 
-const colors = ['#3e95cd', '#7e95cd', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange' ];
+const colors = ['#3e95cd', '#7a910d', 'red', 'blue', 'green', 'yellow', 'magenta', 'cyan', 'orange' ];
 var stocks = ['GOOGL'];
 
 app.get ('/', (req, rsp) => {
@@ -84,7 +84,7 @@ app.get ('/', (req, rsp) => {
           var dataset = {
             data: yvalues,
             label: stock_name,
-            borderColor: colors.pop(),
+            borderColor: colors [callbacks - 1 ],
             fill: false
           };
 
@@ -116,7 +116,7 @@ app.post ('/search', (req, rsp) => {
     new_stock = req.body.stock.toUpperCase ();
 
   if (stocks.indexOf (new_stock) == -1)
-    stocks.push (req.body.stock);
+    stocks.push (new_stock);
 
   rsp.redirect ('/');
 });
