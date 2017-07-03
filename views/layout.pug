@@ -3,7 +3,15 @@ html
     title= title
     link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js')
+    script.
+        console.log ("in websocket script");
+        var socket = io.connect ('http://localhost');
+        socket.on ('news', data => {
+            console.log (data);
+            socket.emit ('other event', {my: 'data'});
+        });
+
   body
     div.navbar.navbar-default.navbar-static-top
       div.container

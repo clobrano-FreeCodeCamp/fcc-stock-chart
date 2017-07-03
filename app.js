@@ -9,6 +9,9 @@ const express = require ('express'),
 const https = require ('https');
 
 const app = express ();
+const server = require ('http').Server (app);
+const io = require('socket.io')(server);
+
 app.use (logger('dev'));
 app.use (cookie_parser ());
 app.use (body_parser.urlencoded ({extended: false}));
@@ -26,6 +29,7 @@ app.use ("/bootstrap", express.static(path.join(__dirname, "/static/bootstrap"))
 app.use ("/stylesheets", express.static(path.join(__dirname, "/static/stylesheets")));
 app.use ("/js", express.static(path.join(__dirname, "/static/js")));
 
+io.listen (3000);
 
 const KEY = process.env.ALPHA_KEY
 const service_host = 'https://www.alphavantage.co/'
@@ -106,6 +110,13 @@ app.get ('/', (req, rsp) => {
       });
     });
   }
+});
+
+io.on ('connection', (socket) => {
+    socket.emit ('news', {hello: 'world'});
+    socket.on ('other event', data => {
+        console.log (data);
+    });
 });
 
 
