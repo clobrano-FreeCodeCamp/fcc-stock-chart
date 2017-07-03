@@ -16,10 +16,6 @@ var io = require ('socket.io')(server);
 io.on ('connect', client => {
   client.emit ('connected', 'Connected with the server');
 
-  client.on ('message', data => {
-    console.log ('Client says: ' + data);
-  });
-
   client.on ('updated-data', data => {
     client.broadcast.emit ('update-all', 'Client notified new data');
   });

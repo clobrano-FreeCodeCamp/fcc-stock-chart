@@ -39,11 +39,13 @@ html
         socket.emit ('message', 'OK');
       });
 
-      socket.on ('broadcast-update', req => {
-        console.log ('all updating now');
+      socket.on ('update-all', req => {
+        console.log ('all updating now!');
+        location.reload(true);
       });
       
       console.log ("#{updates}")
     if updates && updates.length > 0
+      console.log ("emittining updated-data")
       script.
         socket.emit ('updated-data');
