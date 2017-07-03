@@ -9,6 +9,23 @@ const express = require ('express'),
 const https = require ('https');
 
 const app = express ();
+var server = require ('http').createServer (app);
+var io = require ('socket.io')(server);
+
+
+io.on ('connect', client => {
+  client.emit ('connected', 'Connected with the server');
+
+  client.on ('message', data => {
+    console.log ('Client says: ' + data);
+  });
+
+  client.on ('updated-data', data => {
+    client.broadcast.emit ('update-all', 'Client notified new data');
+  });
+});
+
+
 app.use (logger('dev'));
 app.use (cookie_parser ());
 app.use (body_parser.urlencoded ({extended: false}));
@@ -100,7 +117,8 @@ app.get ('/', (req, rsp) => {
             title: title,
             xvalues: xvalues,
             datasets: JSON.stringify (datasets),
-            messages: req.flash ('error')
+            messages: req.flash ('error'),
+            updates: req.flash ('updates')
           });
         }
       });
@@ -115,8 +133,10 @@ app.post ('/search', (req, rsp) => {
   if (req.body.stock)
     new_stock = req.body.stock.toUpperCase ();
 
-  if (stocks.indexOf (new_stock) == -1)
+  if (stocks.indexOf (new_stock) == -1) {
     stocks.push (new_stock);
+    req.flash ('updates', 'new stuff');
+  }
 
   rsp.redirect ('/');
 });
@@ -127,6 +147,7 @@ app.get ('/remove/:stock', (req, rsp) => {
 
   if (id != -1) {
     stocks.splice (id, 1);
+    req.flash ('updates', 'new stuff');
   }
 
   rsp.redirect ('/');
@@ -150,5 +171,6 @@ app.get ('/select/:type/:id', (req, rsp) => {
 })
 
 port = process.env.PORT || 3000
-app.listen(port);
+server.listen(port);
+
 console.log('Server listening on http://localhost:' + port);

@@ -31,3 +31,19 @@ html
 
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
     script(src='/bootstrap/js/bootstrap.min.js')
+    script(src='/socket.io/socket.io.js')
+    script.
+      var socket = io.connect ('http://localhost:3000');
+      socket.on ('connected', req => {
+        console.log ('connected with server');
+        socket.emit ('message', 'OK');
+      });
+
+      socket.on ('broadcast-update', req => {
+        console.log ('all updating now');
+      });
+      
+      console.log ("#{updates}")
+    if updates && updates.length > 0
+      script.
+        socket.emit ('updated-data');
