@@ -33,7 +33,7 @@ html
     script(src='/bootstrap/js/bootstrap.min.js')
     script(src='/socket.io/socket.io.js')
     script.
-      var socket = io.connect ('http://localhost:3000');
+      var socket = io.connect ('https://fcc-stock-chart-js.herokuapp.com/');
       socket.on ('connected', req => {
         console.log ('connected with server');
         socket.emit ('message', 'OK');
