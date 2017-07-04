@@ -46,6 +46,5 @@ html
       
       console.log ("#{updates}")
     if updates && updates.length > 0
-      console.log ("emittining updated-data")
       script.
         socket.emit ('updated-data');
